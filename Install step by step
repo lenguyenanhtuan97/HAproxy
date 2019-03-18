@@ -1,0 +1,31 @@
+# yum install haproxy
+# vi /etc/haproxy/haproxy.conf
+global
+        daemon
+        maxconn 256
+
+    defaults
+        mode http
+        timeout connect 5000ms
+        timeout client 50000ms
+        timeout server 50000ms
+
+    frontend http-in
+        bind *:80
+        default_backend servers
+
+    backend servers                                // healthy check http
+        balance roundrobin
+        server webserver1 <your_ip_web>:81 check
+        server webserver2 <your_ip_web>:81 check
+
+
+    listen mysql-cluster                          // healthy check sq;
+        bind 192.168.88.100:3306
+        mode tcp
+        option mysql-check user haproxy_check
+        balance roundrobin
+        server mysql-1 <your_ip_sql>:3306 check
+        server mysql-2 <your_ip_sql>:3306 check
+~
+
